@@ -2,6 +2,7 @@
 using Booking.API.Application.DTO;
 using Booking.API.Core.Entities;
 using Booking.API.Core.Interfaces;
+using Booking.API.WebAPI.Utilities;
 
 namespace Booking.API.Application.Services;
 
@@ -71,24 +72,23 @@ public class EventService(IEventRepository eventRepository, IMapper mapper) : IE
         return await eventRepository.GetEventsByCountryAsync(country);
     }
 
-    public async Task<long?> RegisterUserForEventAsync(long eventId, UserDto userDto)
+    public async Task<Result<long?>> RegisterUserForEventAsync(long eventId, UserDto userDto)
     {
         if (string.IsNullOrEmpty(userDto.Email))
         {
-            throw new ArgumentException("Email is required.");
+            return Result<long?>.Failure("Email is required.");
         }
-
         var existingRegistration =
             await eventRepository.GetRegistrationByEmailAndEventIdAsync(eventId, userDto.Email);
         if (existingRegistration != null)
         {
-            throw new InvalidOperationException("This email is already registered for the event.");
+            return Result<long?>.Failure("This email is already registered for the event.");
         }
 
         var eventEntity = await eventRepository.GetByIdAsync(eventId);
         if (eventEntity == null)
         {
-            return null;
+            return Result<long?>.Failure("Event not found.");
         }
 
         var registration = new EventRegistration
@@ -98,6 +98,6 @@ public class EventService(IEventRepository eventRepository, IMapper mapper) : IE
         };
 
         var newRegistration = await eventRepository.AddRegistrationAsync(registration);
-        return newRegistration.Id;
+        return Result<long?>.Success(newRegistration.Id);
     }
 }

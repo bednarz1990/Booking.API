@@ -111,7 +111,8 @@ public class EventController(IEventService eventService) : ControllerBase
     }
 
     [HttpPost("{eventId}/register")]
-    public async Task<IActionResult> RegisterForEvent(long eventId, [FromBody] UserDto userDto, [FromServices] UserValidator validator)
+    public async Task<IActionResult> RegisterForEvent(long eventId, [FromBody] UserDto userDto,
+        [FromServices] UserValidator validator)
     {
         var validationResult = await validator.ValidateAsync(userDto);
         if (!validationResult.IsValid)
@@ -119,19 +120,13 @@ public class EventController(IEventService eventService) : ControllerBase
             return BadRequest(validationResult.Errors);
         }
 
-        try
-        {
-            var eventRegistrationId = await eventService.RegisterUserForEventAsync(eventId, userDto);
-            if (eventRegistrationId == null)
-            {
-                return NotFound();
-            }
 
+        var eventRegistrationId = await eventService.RegisterUserForEventAsync(eventId, userDto);
+        if (eventRegistrationId.IsSuccess)
+        {
             return Ok("User registered successfully for the event.");
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"An error occurred: {ex.Message}");
-        }
+
+        return BadRequest(eventRegistrationId.Errors);
     }
 }
