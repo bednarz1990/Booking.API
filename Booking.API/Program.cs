@@ -1,4 +1,3 @@
-using Booking.API.Application.DTO;
 using Booking.API.Application.Mappers;
 using Booking.API.Application.Services;
 using Booking.API.Application.Validators;
