@@ -1,0 +1,13 @@
+
+*.v2
+*.vsidx
+ 
+*.bin
+*.cache
+Booking.API/obj/project.assets.json
+ 
+Booking.API/.vs/
+ 
+Booking.API/bin/
+ 
+Booking.API/obj/
