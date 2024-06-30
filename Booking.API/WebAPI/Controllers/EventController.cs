@@ -111,11 +111,12 @@ public class EventController(IEventService eventService) : ControllerBase
     }
 
     [HttpPost("{eventId}/register")]
-    public async Task<IActionResult> RegisterForEvent(long eventId, [FromBody] UserDto userDto)
+    public async Task<IActionResult> RegisterForEvent(long eventId, [FromBody] UserDto userDto, [FromServices] UserValidator validator)
     {
-        if (!ModelState.IsValid)
+        var validationResult = await validator.ValidateAsync(userDto);
+        if (!validationResult.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest(validationResult.Errors);
         }
 
         try
