@@ -34,5 +34,6 @@ public class CreateEventTests : BaseFuncTest
         string responseContent = await response.Content.ReadAsStringAsync();
         var validationErrors = JsonConvert.DeserializeObject<List<ValidationFailure>>(responseContent);
         validationErrors.Should().ContainSingle()
-            .Which.PropertyName.Should().Be("NumberOfSeats");    }
+            .Which.PropertyName.Should().Be("NumberOfSeats");
+    }
 }
