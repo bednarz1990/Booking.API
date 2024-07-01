@@ -37,10 +37,10 @@ public class EventService(IEventRepository eventRepository, IMapper mapper) : IE
         return Result<long>.Success(newEvent.Id);
     }
 
-    public async Task<Result<EventCreateDto>> UpdateEventAsync(long eventId, EventUpdateDto eventCreateDto)
+    public async Task<Result<EventUpdateDto>> UpdateEventAsync(long eventId, EventUpdateDto eventCreateDto)
     {
         var existingEvent = await GetExistingEventById(eventId);
-        if (existingEvent == null) return Result<EventCreateDto>.Failure("Event not found.");
+        if (existingEvent == null) return Result<EventUpdateDto>.Failure("Event not found.");
 
         existingEvent.Name = eventCreateDto.Name;
         existingEvent.Country = eventCreateDto.Country;
@@ -49,8 +49,9 @@ public class EventService(IEventRepository eventRepository, IMapper mapper) : IE
         existingEvent.NumberOfSeats = eventCreateDto.NumberOfSeats;
 
         await eventRepository.UpdateAsync(existingEvent);
+        var updatedDto = mapper.Map<EventUpdateDto>(existingEvent);
 
-        return mapper.Map<Result<EventCreateDto>>(existingEvent);
+        return Result<EventUpdateDto>.Success(updatedDto);
     }
 
     public async Task<Result> DeleteEventAsync(long eventId)
