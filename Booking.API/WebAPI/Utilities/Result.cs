@@ -2,16 +2,16 @@
 
 public class Result<T>
 {
-    public T Data { get; private set; }
-    public bool IsSuccess { get; private set; }
-    public IList<string> Errors { get; private set; }
-
     protected Result(T data, bool isSuccess, IList<string> errors)
     {
         Data = data;
         IsSuccess = isSuccess;
         Errors = errors ?? new List<string>();
     }
+
+    public T Data { get; private set; }
+    public bool IsSuccess { get; private set; }
+    public IList<string> Errors { get; private set; }
 
     public static Result<T> Success(T data)
     {

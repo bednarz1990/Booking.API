@@ -37,10 +37,7 @@ public class EventService(IEventRepository eventRepository, IMapper mapper) : IE
     public async Task<EventDto> UpdateEventAsync(long eventId, EventDto eventDto)
     {
         var existingEvent = await eventRepository.GetByIdAsync(eventId);
-        if (existingEvent == null)
-        {
-            return null;
-        }
+        if (existingEvent == null) return null;
 
         existingEvent.Name = eventDto.Name;
         existingEvent.Country = eventDto.Country;
@@ -57,10 +54,7 @@ public class EventService(IEventRepository eventRepository, IMapper mapper) : IE
     {
         var existingEvent = await eventRepository.GetByIdAsync(eventId);
 
-        if (existingEvent == null)
-        {
-            return false;
-        }
+        if (existingEvent == null) return false;
 
         await eventRepository.DeleteAsync(existingEvent);
 
@@ -74,22 +68,14 @@ public class EventService(IEventRepository eventRepository, IMapper mapper) : IE
 
     public async Task<Result<long?>> RegisterUserForEventAsync(long eventId, UserDto userDto)
     {
-        if (string.IsNullOrEmpty(userDto.Email))
-        {
-            return Result<long?>.Failure("Email is required.");
-        }
+        if (string.IsNullOrEmpty(userDto.Email)) return Result<long?>.Failure("Email is required.");
         var existingRegistration =
             await eventRepository.GetRegistrationByEmailAndEventIdAsync(eventId, userDto.Email);
         if (existingRegistration != null)
-        {
             return Result<long?>.Failure("This email is already registered for the event.");
-        }
 
         var eventEntity = await eventRepository.GetByIdAsync(eventId);
-        if (eventEntity == null)
-        {
-            return Result<long?>.Failure("Event not found.");
-        }
+        if (eventEntity == null) return Result<long?>.Failure("Event not found.");
 
         var registration = new EventRegistration
         {

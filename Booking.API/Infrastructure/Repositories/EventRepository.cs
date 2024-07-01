@@ -55,9 +55,11 @@ public class EventRepository : IEventRepository
             .ToListAsync();
     }
 
-    public async Task<EventRegistration> GetRegistrationByEmailAndEventIdAsync(long eventId, string email) =>
-        (await _context.EventRegistrations
+    public async Task<EventRegistration> GetRegistrationByEmailAndEventIdAsync(long eventId, string email)
+    {
+        return (await _context.EventRegistrations
             .FirstOrDefaultAsync(er => er.EventId == eventId && er.Email == email))!;
+    }
 
     public async Task<EventRegistration> AddRegistrationAsync(EventRegistration registration)
     {

@@ -6,5 +6,5 @@ public class EventDto
     public string Country { get; set; }
     public string Description { get; set; }
     public DateTime StartDate { get; set; }
-    public int NumberOfSeats { get; set; } 
+    public int NumberOfSeats { get; set; }
 }

@@ -1,8 +1,7 @@
 ﻿using Booking.API.Application.DTO;
+using FluentValidation;
 
 namespace Booking.API.Application.Validators;
-
-using FluentValidation;
 
 public class UserValidator : AbstractValidator<UserDto>
 {

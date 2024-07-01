@@ -28,10 +28,7 @@ public class EventController(IEventService eventService) : ControllerBase
     public async Task<ActionResult<EventDto>> GetEventById(long id)
     {
         var @event = await eventService.GetEventByIdAsync(id);
-        if (@event == null)
-        {
-            return NotFound();
-        }
+        if (@event == null) return NotFound();
 
         var eventDto = new EventDto
         {
@@ -49,10 +46,7 @@ public class EventController(IEventService eventService) : ControllerBase
     public async Task<IActionResult> CreateEvent([FromBody] EventDto eventDto, [FromServices] EventValidator validator)
     {
         var validationResult = await validator.ValidateAsync(eventDto);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors);
-        }
+        if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
 
         try
         {
@@ -70,16 +64,10 @@ public class EventController(IEventService eventService) : ControllerBase
         [FromServices] EventUpdateValidator validator)
     {
         var validationResult = await validator.ValidateAsync(eventDto);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors);
-        }
+        if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
 
         var updatedEvent = await eventService.UpdateEventAsync(id, eventDto);
-        if (updatedEvent == null)
-        {
-            return NotFound();
-        }
+        if (updatedEvent == null) return NotFound();
 
         return Ok(updatedEvent);
     }
@@ -88,10 +76,7 @@ public class EventController(IEventService eventService) : ControllerBase
     public async Task<IActionResult> DeleteEvent(long id)
     {
         var result = await eventService.DeleteEventAsync(id);
-        if (!result)
-        {
-            return NotFound();
-        }
+        if (!result) return NotFound();
 
         return NoContent();
     }
@@ -102,9 +87,9 @@ public class EventController(IEventService eventService) : ControllerBase
         var events = await eventService.SearchEventsByCountryAsync(country);
         var eventDtos = events.Select(e => new
         {
-            Name = e.Name,
-            Country = e.Country,
-            StartDate = e.StartDate
+            e.Name,
+            e.Country,
+            e.StartDate
         }).ToList();
 
         return Ok(eventDtos);
@@ -115,17 +100,11 @@ public class EventController(IEventService eventService) : ControllerBase
         [FromServices] UserValidator validator)
     {
         var validationResult = await validator.ValidateAsync(userDto);
-        if (!validationResult.IsValid)
-        {
-            return BadRequest(validationResult.Errors);
-        }
+        if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
 
 
         var eventRegistrationId = await eventService.RegisterUserForEventAsync(eventId, userDto);
-        if (eventRegistrationId.IsSuccess)
-        {
-            return Ok("User registered successfully for the event.");
-        }
+        if (eventRegistrationId.IsSuccess) return Ok("User registered successfully for the event.");
 
         return BadRequest(eventRegistrationId.Errors);
     }
