@@ -7,9 +7,11 @@ namespace Booking.API.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Produces("application/json")]
 public class EventController(IEventService eventService) : ControllerBase
 {
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllEvents()
     {
         var events = await eventService.GetAllEventsAsync();
@@ -25,6 +27,8 @@ public class EventController(IEventService eventService) : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EventCreateDto))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<EventCreateDto>> GetEventById(long id)
     {
         var result = await eventService.GetEventByIdAsync(id);
@@ -48,6 +52,8 @@ public class EventController(IEventService eventService) : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateEvent([FromBody] EventCreateDto eventCreateDto, [FromServices] EventValidator validator)
     {
         var validationResult = await validator.ValidateAsync(eventCreateDto);
@@ -57,15 +63,13 @@ public class EventController(IEventService eventService) : ControllerBase
         }
 
         var result = await eventService.CreateEventAsync(eventCreateDto);
-        if (!result.IsSuccess)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Error creating event: {string.Join(", ", result.Errors)}");
-        }
-
         return Ok(new { id = result.Data });
     }
 
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EventUpdateDto))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateEvent(long id, [FromBody] EventUpdateDto eventUpdateDto,
         [FromServices] EventUpdateValidator validator)
     {
@@ -85,6 +89,8 @@ public class EventController(IEventService eventService) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteEvent(long id)
     {
         var result = await eventService.DeleteEventAsync(id);
@@ -97,6 +103,7 @@ public class EventController(IEventService eventService) : ControllerBase
     }
 
     [HttpGet("search")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<EventCreateDto>))]
     public async Task<ActionResult<IEnumerable<EventCreateDto>>> SearchEventsByCountry([FromQuery] string country)
     {
         var events = await eventService.SearchEventsByCountryAsync(country);
@@ -111,6 +118,8 @@ public class EventController(IEventService eventService) : ControllerBase
     }
 
     [HttpPost("{eventId}/register")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterForEvent(long eventId, [FromBody] UserDto userDto,
         [FromServices] UserValidator validator)
     {

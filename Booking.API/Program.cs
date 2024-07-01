@@ -45,7 +45,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Booking API v1");
-    c.RoutePrefix = ""; // Wartość pusta, aby Swagger był dostępny pod głównym adresem
+    c.RoutePrefix = string.Empty;
 });
 
 app.UseHttpsRedirection();
