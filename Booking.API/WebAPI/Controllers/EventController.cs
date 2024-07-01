@@ -25,64 +25,79 @@ public class EventController(IEventService eventService) : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<EventDto>> GetEventById(long id)
+    public async Task<ActionResult<EventCreateDto>> GetEventById(long id)
     {
-        var @event = await eventService.GetEventByIdAsync(id);
-        if (@event == null) return NotFound();
+        var result = await eventService.GetEventByIdAsync(id);
 
-        var eventDto = new EventDto
+        if (!result.IsSuccess)
         {
-            Name = @event.Name,
-            Country = @event.Country,
-            Description = @event.Description,
-            StartDate = @event.StartDate,
-            NumberOfSeats = @event.NumberOfSeats
+            return NotFound(result.Errors);
+        }
+
+        var eventEntity = result.Data;
+        var eventDto = new EventCreateDto
+        {
+            Name = eventEntity.Name,
+            Country = eventEntity.Country,
+            Description = eventEntity.Description,
+            StartDate = eventEntity.StartDate,
+            NumberOfSeats = eventEntity.NumberOfSeats
         };
 
         return Ok(eventDto);
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateEvent([FromBody] EventDto eventDto, [FromServices] EventValidator validator)
+    public async Task<IActionResult> CreateEvent([FromBody] EventCreateDto eventCreateDto, [FromServices] EventValidator validator)
     {
-        var validationResult = await validator.ValidateAsync(eventDto);
-        if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
+        var validationResult = await validator.ValidateAsync(eventCreateDto);
+        if (!validationResult.IsValid)
+        {
+            return BadRequest(validationResult.Errors);
+        }
 
-        try
+        var result = await eventService.CreateEventAsync(eventCreateDto);
+        if (!result.IsSuccess)
         {
-            var eventId = await eventService.CreateEventAsync(eventDto);
-            return Ok(new { id = eventId });
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Error creating event: {string.Join(", ", result.Errors)}");
         }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"Error creating event: {ex.Message}");
-        }
+
+        return Ok(new { id = result.Data });
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEvent(long id, [FromBody] EventDto eventDto,
+    public async Task<IActionResult> UpdateEvent(long id, [FromBody] EventUpdateDto eventUpdateDto,
         [FromServices] EventUpdateValidator validator)
     {
-        var validationResult = await validator.ValidateAsync(eventDto);
-        if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
+        var validationResult = await validator.ValidateAsync(eventUpdateDto);
+        if (!validationResult.IsValid) 
+        {
+            return BadRequest(validationResult.Errors);
+        }
 
-        var updatedEvent = await eventService.UpdateEventAsync(id, eventDto);
-        if (updatedEvent == null) return NotFound();
+        var result = await eventService.UpdateEventAsync(id, eventUpdateDto);
+        if (!result.IsSuccess) 
+        {
+            return NotFound(result.Errors);
+        }
 
-        return Ok(updatedEvent);
+        return Ok(result.Data);
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEvent(long id)
     {
         var result = await eventService.DeleteEventAsync(id);
-        if (!result) return NotFound();
+        if (!result.IsSuccess)
+        {
+            return NotFound(result.Errors);
+        }
 
         return NoContent();
     }
 
     [HttpGet("search")]
-    public async Task<ActionResult<IEnumerable<EventDto>>> SearchEventsByCountry([FromQuery] string country)
+    public async Task<ActionResult<IEnumerable<EventCreateDto>>> SearchEventsByCountry([FromQuery] string country)
     {
         var events = await eventService.SearchEventsByCountryAsync(country);
         var eventDtos = events.Select(e => new

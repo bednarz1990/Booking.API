@@ -1,6 +1,6 @@
 ﻿namespace Booking.API.Application.DTO;
 
-public class EventDto
+public class EventUpdateDto
 {
     public string Name { get; set; }
     public string Country { get; set; }

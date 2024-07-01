@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace Booking.API.Application.Validators;
 
-public class EventValidator : AbstractValidator<EventDto>
+public class EventValidator : AbstractValidator<EventCreateDto>
 {
     private readonly IEventRepository _eventRepository;
 

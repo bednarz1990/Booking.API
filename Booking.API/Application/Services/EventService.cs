@@ -8,57 +8,59 @@ namespace Booking.API.Application.Services;
 
 public class EventService(IEventRepository eventRepository, IMapper mapper) : IEventService
 {
-    public async Task<Event> GetEventByIdAsync(long eventId)
+    public async Task<Result<Event>> GetEventByIdAsync(long eventId)
     {
-        return await eventRepository.GetByIdAsync(eventId);
+        var existingEvent = await GetExistingEventById(eventId);
+
+        if (existingEvent == null) return Result<Event>.Failure("Event not found.");
+        return Result<Event>.Success(existingEvent);
     }
 
-    public async Task<IEnumerable<EventDto>> GetAllEventsAsync()
+    public async Task<IEnumerable<EventCreateDto>> GetAllEventsAsync()
     {
         var events = await eventRepository.GetAllAsync();
-        return events.Select(mapper.Map<EventDto>).ToList();
+        return events.Select(mapper.Map<EventCreateDto>).ToList();
     }
 
-    public async Task<long> CreateEventAsync(EventDto eventDto)
+    public async Task<Result<long>> CreateEventAsync(EventCreateDto eventCreateDto)
     {
         var eventEntity = new Event
         {
-            Name = eventDto.Name,
-            Country = eventDto.Country,
-            Description = eventDto.Description,
-            StartDate = eventDto.StartDate,
-            NumberOfSeats = eventDto.NumberOfSeats
+            Name = eventCreateDto.Name,
+            Country = eventCreateDto.Country,
+            Description = eventCreateDto.Description,
+            StartDate = eventCreateDto.StartDate,
+            NumberOfSeats = eventCreateDto.NumberOfSeats
         };
 
         var newEvent = await eventRepository.AddAsync(eventEntity);
-        return newEvent.Id;
+        return Result<long>.Success(newEvent.Id);
     }
 
-    public async Task<EventDto> UpdateEventAsync(long eventId, EventDto eventDto)
+    public async Task<Result<EventCreateDto>> UpdateEventAsync(long eventId, EventUpdateDto eventCreateDto)
     {
-        var existingEvent = await eventRepository.GetByIdAsync(eventId);
-        if (existingEvent == null) return null;
+        var existingEvent = await GetExistingEventById(eventId);
+        if (existingEvent == null) return Result<EventCreateDto>.Failure("Event not found.");
 
-        existingEvent.Name = eventDto.Name;
-        existingEvent.Country = eventDto.Country;
-        existingEvent.Description = eventDto.Description;
-        existingEvent.StartDate = eventDto.StartDate;
-        existingEvent.NumberOfSeats = eventDto.NumberOfSeats;
+        existingEvent.Name = eventCreateDto.Name;
+        existingEvent.Country = eventCreateDto.Country;
+        existingEvent.Description = eventCreateDto.Description;
+        existingEvent.StartDate = eventCreateDto.StartDate;
+        existingEvent.NumberOfSeats = eventCreateDto.NumberOfSeats;
 
         await eventRepository.UpdateAsync(existingEvent);
 
-        return mapper.Map<EventDto>(existingEvent);
+        return mapper.Map<Result<EventCreateDto>>(existingEvent);
     }
 
-    public async Task<bool> DeleteEventAsync(long eventId)
+    public async Task<Result> DeleteEventAsync(long eventId)
     {
-        var existingEvent = await eventRepository.GetByIdAsync(eventId);
+        var existingEvent = await GetExistingEventById(eventId);
 
-        if (existingEvent == null) return false;
+        if (existingEvent == null) return Result.Failure("Event not found.");
 
         await eventRepository.DeleteAsync(existingEvent);
-
-        return true;
+        return Result.Success();
     }
 
     public async Task<IEnumerable<Event>> SearchEventsByCountryAsync(string country)
@@ -74,8 +76,8 @@ public class EventService(IEventRepository eventRepository, IMapper mapper) : IE
         if (existingRegistration != null)
             return Result<long?>.Failure("This email is already registered for the event.");
 
-        var eventEntity = await eventRepository.GetByIdAsync(eventId);
-        if (eventEntity == null) return Result<long?>.Failure("Event not found.");
+        var existingEvent = await GetExistingEventById(eventId);
+        if (existingEvent == null) return Result<long?>.Failure("Event not found.");
 
         var registration = new EventRegistration
         {
@@ -85,5 +87,11 @@ public class EventService(IEventRepository eventRepository, IMapper mapper) : IE
 
         var newRegistration = await eventRepository.AddRegistrationAsync(registration);
         return Result<long?>.Success(newRegistration.Id);
+    }
+
+    private async Task<Event> GetExistingEventById(long eventId)
+    {
+        var existingEvent = await eventRepository.GetByIdAsync(eventId);
+        return existingEvent;
     }
 }

@@ -8,6 +8,6 @@ public class EventMapper : Profile
 {
     public EventMapper()
     {
-        CreateMap<Event, EventDto>().ReverseMap();
+        CreateMap<Event, EventCreateDto>().ReverseMap();
     }
 }

@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Booking.API.Application.Validators;
 
-public class EventUpdateValidator : AbstractValidator<EventDto>
+public class EventUpdateValidator : AbstractValidator<EventUpdateDto>
 {
     public EventUpdateValidator()
     {

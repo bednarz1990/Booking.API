@@ -6,11 +6,11 @@ namespace Booking.API.Core.Interfaces;
 
 public interface IEventService
 {
-    Task<long> CreateEventAsync(EventDto eventDto);
-    Task<IEnumerable<EventDto>> GetAllEventsAsync();
-    Task<Event> GetEventByIdAsync(long eventId);
-    Task<EventDto> UpdateEventAsync(long eventId, EventDto eventDto);
-    Task<bool> DeleteEventAsync(long eventId);
+    Task<Result<long>> CreateEventAsync(EventCreateDto eventCreateDto);
+    Task<IEnumerable<EventCreateDto>> GetAllEventsAsync();
+    Task<Result<Event>> GetEventByIdAsync(long eventId);
+    Task<Result<EventCreateDto>> UpdateEventAsync(long eventId, EventUpdateDto eventCreateDto);
+    Task<Result> DeleteEventAsync(long eventId);
     Task<IEnumerable<Event>> SearchEventsByCountryAsync(string country);
     Task<Result<long?>> RegisterUserForEventAsync(long eventId, UserDto userDto);
 }
