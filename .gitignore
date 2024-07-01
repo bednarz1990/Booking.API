@@ -14,3 +14,8 @@ Booking.API/obj/
 Booking.API/.idea/.idea.Booking.API/.idea/vcs.xml
 Booking.API/.idea/.idea.Booking.API/.idea/indexLayout.xml
 Booking.API/.idea/.idea.Booking.API/.idea/encodings.xml
+/Api.FunctionalTests/obj
+/Api.FunctionalTests/bin
+Booking.API/Booking.API.sln.DotSettings.user
+Booking.API/Properties/PublishProfiles/BookingAPI20240701013748232 - Zip Deploy.pubxml.user
+Booking.API/Properties/PublishProfiles/BookingAPI20240701013748232 - Zip Deploy.pubxml.user
